@@ -1,9 +1,11 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Prefabs\CreateWall.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\ApplyTexture.cs">
     <Files>
-      <File FileName="Assets\ApplyTexture.cs" Line="8" Column="17" />
-      <File FileName="Assets\Prefabs\CreateWall.cs" Line="13" Column="4" />
+      <File FileName="Assets\Scripts\Controller.cs" Line="6" Column="25" />
+      <File FileName="Assets\Scripts\ApplyTexture.cs" Line="11" Column="72" />
+      <File FileName="Assets\Scripts\CreateWall.cs" Line="25" Column="51" />
+      <File FileName="Assets\Scripts\Tile.cs" Line="16" Column="3" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
