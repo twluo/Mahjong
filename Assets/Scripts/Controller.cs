@@ -4,13 +4,27 @@ using System.Collections.Generic;
 
 public class Controller : MonoBehaviour {
 
+	public GameObject tile;
 	public enum Suit { Pin, Bamboo, Man, Wind, Dragon };
 	public enum Pin { one = 1, two, three, four, five, six, seven, eight, nine };
 	public enum Bamboo { one = 1, two, three, four, five, six, seven, eight, nine };
 	public enum Man { one = 1, two, three, four, five, six, seven, eight, nine };
 	public enum Wind { east, south, west, north };
 	public enum Dragon { red, green, white };
+
 	
+	private static void ShufflePool(List<Tile> pool)  
+	{  
+		int n = pool.Count;  
+		while (n > 1) {  
+			n--;  
+			int k = Random.Range (0,pool.Count);  
+			Tile value = pool[k];  
+			pool[k] = pool[n];  
+			pool[n] = value;  
+		}  
+	}
+
 	public class Tile {
 		Suit suit;
 		Pin pin;
@@ -84,22 +98,9 @@ public class Controller : MonoBehaviour {
 
 		public Pool()	{
 			initializePool();
-			ShufflePool();
+			ShufflePool(pool);
 		}
 
-		private Random rng = new Random(); 
-		
-		private void ShufflePool()  
-		{  
-			int n = pool.Count;  
-			while (n > 1) {  
-				n--;  
-				int k = Random.Range (0,pool.Count);  
-				Tile value = pool[k];  
-				pool[k] = pool[n];  
-				pool[n] = value;  
-			}  
-		}
 		public List<Tile> getPool() {
 			return pool;
 		}
@@ -167,14 +168,31 @@ public class Controller : MonoBehaviour {
 	}
 	
 	static Pool pool = new Pool();
-	public class Hand {
 
+	public class Hand {
+		GameObject parent;
 		List<Tile> hand;
 		Tile drawnTile;
 		List<List<Tile>> melded;
+		GameObject tile;
 
 		public Hand() {
+			//TODO Change to find by tag and figure out optimal way to pass it down
+			parent = GameObject.Find ("Controller");
+			if (parent)
+				print ("Found");
+			tile = (GameObject) Resources.Load ("tile");
 			hand = pool.draw (13);
+			Vector3 size = tile.transform.localScale;
+			Vector3 initialPos = new Vector3(0,size.y/2,0);
+			Quaternion rotation = tile.transform.localRotation;
+			for (int i = 0; i < 13; i++) {
+				Vector3 spawnLocation = initialPos - new Vector3(i * size.x, 0, 0); 
+				GameObject childTile = (GameObject) Object.Instantiate (tile, spawnLocation, rotation);
+				childTile.transform.SetParent (parent.transform);
+				childTile.transform.name = (""+i);
+				childTile.SendMessage ("setTile", hand[i].getTileName ());
+			}
 		}
 
 		public void draw() {
@@ -198,7 +216,8 @@ public class Controller : MonoBehaviour {
 			foreach (Tile t in hand) {
 				handName = handName + " " + t.getTileName ();
 			}
-			handName = handName + " " + drawnTile.getTileName ();
+			if (drawnTile != null)
+				handName = handName + " " + drawnTile.getTileName ();
 			print (handName);
 		}
 	}
@@ -208,7 +227,7 @@ public class Controller : MonoBehaviour {
 		List<Tile> discard;
 
 		public Player() {
-			hand = new Hand();
+			//hand = new Hand();
 			discard = new List<Tile>();
 		}
 
@@ -218,12 +237,8 @@ public class Controller : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		pool.printPool ();
-		List<Tile> hand = pool.draw(13);
-		string poolName = "";
-		foreach (Tile t in hand) {
-			poolName = poolName + " " + t.getTileName ();
-		}
-		print (poolName);
+		Hand h = new Hand ();
+		h.printHand ();
 		pool.printPool ();
 
 	}

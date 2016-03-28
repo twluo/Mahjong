@@ -22,7 +22,7 @@ public class CreateWall : MonoBehaviour {
 				GameObject childTile = (GameObject) Object.Instantiate (tile, spawnLocation, Quaternion.Euler (-90, 0, 0));
 				childTile.transform.SetParent (this.transform);
 				childTile.transform.name = (x+9) + "-" + y;
-				childTile.SendMessage ("changeTexture", "test");
+				childTile.SendMessage ("setTile", "test");
 			}
 		}
 	}
