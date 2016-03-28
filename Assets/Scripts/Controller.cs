@@ -187,7 +187,7 @@ public class Controller : MonoBehaviour {
 			Vector3 initialPos = new Vector3(0,size.y/2,0);
 			Quaternion rotation = tile.transform.localRotation;
 			for (int i = 0; i < 13; i++) {
-				Vector3 spawnLocation = initialPos - new Vector3(i * size.x, 0, 0); 
+				Vector3 spawnLocation = initialPos + new Vector3(i * size.x, 0, 0); 
 				GameObject childTile = (GameObject) Object.Instantiate (tile, spawnLocation, rotation);
 				childTile.transform.SetParent (parent.transform);
 				childTile.transform.name = (""+i);

@@ -9,7 +9,6 @@ public class ApplyTexture : MonoBehaviour {
 	Vector2 uv4 = new Vector2(0.666f, 1.0f);
 
 	void setTile(string tileName) {
-		print (tileName [0]);
 		float x;
 		float y;
 		if (tileName [1] == 'm')
