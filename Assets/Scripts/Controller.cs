@@ -12,7 +12,54 @@ public class Controller : MonoBehaviour {
 	public enum Wind { east, south, west, north };
 	public enum Dragon { red, green, white };
 
-	
+	private static int compareSuit(Suit x, Suit y) {
+		if (x < y)
+			return -1;
+		else if (x > y)
+			return 1;
+		else
+			return 0;
+	}
+	private static int comparePin(Pin x, Pin y) {
+		if (x < y)
+			return -1;
+		else if (x > y)
+			return 1;
+		else
+			return 0;
+	}
+	private static int compareBamboo(Bamboo x, Bamboo y) {
+		if (x < y)
+			return -1;
+		else if (x > y)
+			return 1;
+		else
+			return 0;
+	}
+	private static int compareMan(Man x, Man y) {
+		if (x < y)
+			return -1;
+		else if (x > y)
+			return 1;
+		else
+			return 0;
+	}
+	private static int compareWind(Wind x, Wind y) {
+		if (x < y)
+			return -1;
+		else if (x > y)
+			return 1;
+		else
+			return 0;
+	}
+	private static int compareDragon(Dragon x, Dragon y) {
+		if (x < y)
+			return -1;
+		else if (x > y)
+			return 1;
+		else
+			return 0;
+	}
 	private static void ShufflePool(List<Tile> pool)  
 	{  
 		int n = pool.Count;  
@@ -32,6 +79,30 @@ public class Controller : MonoBehaviour {
 		Man man;
 		Dragon dragon;
 		Wind wind;
+
+		public Suit getSuit() {
+			return suit;
+		}
+
+		public Pin getPin() {
+			return pin;
+		}
+
+		public Bamboo getBamboo() {
+			return bamboo;
+		}
+
+		public Man getMan() {
+			return man;
+		}
+
+		public Dragon getDragon() {
+			return dragon;
+		}
+
+		public Wind getWind() {
+			return wind;
+		}
 
 		public Tile(Suit s, Pin p = Pin.one, Bamboo b = Bamboo.one, Man m = Man.one, Wind w = Wind.east, Dragon d = Dragon.red) {
 			suit = s; 
@@ -112,7 +183,8 @@ public class Controller : MonoBehaviour {
 			}
 			print (poolName);
 		}
-		public List<Tile> draw(int num) {
+
+		public List<Tile> drawTile(int num) {
 			List<Tile> drawn = pool.GetRange (0, num);
 			pool.RemoveRange (0, num);
 			return drawn;
@@ -172,6 +244,7 @@ public class Controller : MonoBehaviour {
 	public class Hand {
 		GameObject parent;
 		List<Tile> hand;
+		List<GameObject> handObjects;
 		Tile drawnTile;
 		List<List<Tile>> melded;
 		GameObject tile;
@@ -182,7 +255,7 @@ public class Controller : MonoBehaviour {
 			if (parent)
 				print ("Found");
 			tile = (GameObject) Resources.Load ("tile");
-			hand = pool.draw (13);
+			hand = pool.drawTile (13);
 			Vector3 size = tile.transform.localScale;
 			Vector3 initialPos = new Vector3(0,size.y/2,0);
 			Quaternion rotation = tile.transform.localRotation;
@@ -196,7 +269,7 @@ public class Controller : MonoBehaviour {
 		}
 
 		public void draw() {
-			drawnTile = pool.draw (1)[0];
+			drawnTile = pool.drawTile (1)[0];
 		}
 
 		public Tile discard(int loc) {
@@ -220,6 +293,34 @@ public class Controller : MonoBehaviour {
 				handName = handName + " " + drawnTile.getTileName ();
 			print (handName);
 		}
+
+		public void sortHand() {
+			hand.Sort (delegate(Tile x, Tile y) {
+				if (x.getSuit () == y.getSuit ()) {
+					switch (x.getSuit ()) {
+						case Suit.Pin:
+							return comparePin(x.getPin (),y.getPin ());
+						case Suit.Bamboo:
+							return compareBamboo(x.getBamboo (), y.getBamboo ());
+						case Suit.Man:
+							return compareMan(x.getMan (), y.getMan ());
+						case Suit.Wind:
+							return compareWind(x.getWind (), y.getWind ());
+						case Suit.Dragon:
+							return compareDragon(x.getDragon (), y.getDragon ());
+					}
+				}
+				return compareSuit(x.getSuit (), y.getSuit ());
+			});
+		}
+
+		public void updateHand() {
+			int i = 0;
+			foreach (Transform child in parent.transform) {
+				child.SendMessage ("setTile", hand [i].getTileName ());
+				i++;
+			}
+		}
 	}
 
 	public class Player {
@@ -240,6 +341,9 @@ public class Controller : MonoBehaviour {
 		Hand h = new Hand ();
 		h.printHand ();
 		pool.printPool ();
+		h.sortHand ();
+		h.printHand ();
+		h.updateHand ();
 
 	}
 	
