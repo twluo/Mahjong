@@ -12,6 +12,7 @@ public class Controller : MonoBehaviour {
 	public enum Wind { east, south, west, north };
 	public enum Dragon { red, green, white };
 
+
 	private static int compareSuit(Suit x, Suit y) {
 		if (x < y)
 			return -1;
@@ -242,27 +243,28 @@ public class Controller : MonoBehaviour {
 	static Pool pool = new Pool();
 
 	public class Hand {
-		GameObject parent;
+		GameObject handContainer;
+		
 		List<Tile> hand;
 		List<GameObject> handObjects;
 		Tile drawnTile;
 		List<List<Tile>> melded;
 		GameObject tile;
 
-		public Hand() {
+		public Hand(GameObject p) {
 			//TODO Change to find by tag and figure out optimal way to pass it down
-			parent = GameObject.Find ("Controller");
-			if (parent)
-				print ("Found");
 			tile = (GameObject) Resources.Load ("tile");
 			hand = pool.drawTile (13);
+			handContainer = new GameObject();
+			handContainer.name = "Hand";
+			handContainer.transform.SetParent (p.transform);
 			Vector3 size = tile.transform.localScale;
 			Vector3 initialPos = new Vector3(0,size.y/2,0);
 			Quaternion rotation = tile.transform.localRotation;
 			for (int i = 0; i < 13; i++) {
 				Vector3 spawnLocation = initialPos + new Vector3(i * size.x, 0, 0); 
 				GameObject childTile = (GameObject) Object.Instantiate (tile, spawnLocation, rotation);
-				childTile.transform.SetParent (parent.transform);
+				childTile.transform.SetParent (handContainer.transform);
 				childTile.transform.name = (""+i);
 				childTile.SendMessage ("setTile", hand[i].getTileName ());
 			}
@@ -270,6 +272,12 @@ public class Controller : MonoBehaviour {
 
 		public void draw() {
 			drawnTile = pool.drawTile (1)[0];
+			Transform lastTile = handContainer.transform.GetChild (handContainer.transform.childCount - 1);
+			Vector3 spawnLocation = lastTile.position + new Vector3 (2 * tile.transform.localScale.x, 0, 0);
+			GameObject childTile = (GameObject) Object.Instantiate (tile, spawnLocation, tile.transform.localRotation);
+			childTile.transform.SetParent (handContainer.transform);
+			childTile.transform.name = ("13");
+			childTile.SendMessage ("setTile", drawnTile.getTileName ());
 		}
 
 		public Tile discard(int loc) {
@@ -278,8 +286,19 @@ public class Controller : MonoBehaviour {
 				discard = hand [loc];
 				hand.RemoveAt (loc);
 				hand.Add (drawnTile);
+				drawnTile = null;
+				GameObject d = handContainer.transform.GetChild (handContainer.transform.childCount - 1).gameObject;
+				d.transform.SetParent (null);
+				Destroy(d);
+				discard.printTile ();
+				this.sortHand ();
+				this.updateHand ();
+				this.printHand ();
 				return discard;
 			} else {
+				GameObject d = handContainer.transform.GetChild (handContainer.transform.childCount - 1).gameObject;
+				d.transform.SetParent (null);
+				Destroy(d);
 				return drawnTile;
 			}
 		}
@@ -315,40 +334,98 @@ public class Controller : MonoBehaviour {
 		}
 
 		public void updateHand() {
+			print ("UPDATING");
 			int i = 0;
-			foreach (Transform child in parent.transform) {
+			foreach (Transform child in handContainer.transform) {
+				print (hand[i].getTileName ());
 				child.SendMessage ("setTile", hand [i].getTileName ());
 				i++;
 			}
 		}
 	}
 
+	public class Discard {
+		List<Tile> discard;
+		GameObject discardContainer;
+
+		public Discard(GameObject p) {
+			discard = new List<Tile>();
+			discardContainer = new GameObject();
+			discardContainer.name = "Discard";
+			discardContainer.transform.SetParent (p.transform);
+		}
+
+		public void addDiscard(Tile t) {
+			discard.Add (t);
+			GameObject test = new GameObject ();
+			test.name = t.getTileName ();
+			test.transform.SetParent (discardContainer.transform);
+		}
+
+		public void printDiscard() {
+			string discardName = "";
+			foreach (Tile t in discard) {
+				discardName = discardName + " " + t.getTileName ();
+			}
+			print (discardName);
+		}
+	}
+
 	public class Player {
 		Hand hand;
-		List<Tile> discard;
+		Discard discard;
+		int playerNum;
+		GameObject parent;
 
-		public Player() {
+		public Player(int num, GameObject p) {
 			//hand = new Hand();
-			discard = new List<Tile>();
+			parent = p;
+			GameObject player = new GameObject();
+			playerNum = num;
+			player.name = "Player " + playerNum;
+			player.transform.SetParent(parent.transform);
+			discard = new Discard(player);
+			hand = new Hand (player);
+			hand.sortHand ();
+			hand.updateHand ();
+		}
+		public void Draw() {
+			hand.draw ();
+		}
+
+		public void Discard(int num) {
+			Tile d = hand.discard (num);
+			discard.addDiscard (d);
+			hand.updateHand ();
 		}
 
 	}
 	//TODO: SET UP HAND AND LINK TO VIEW.
-
+	
+	int stage = 0;
+	Player p1;
 	// Use this for initialization
 	void Start () {
-		pool.printPool ();
-		Hand h = new Hand ();
-		h.printHand ();
-		pool.printPool ();
-		h.sortHand ();
-		h.printHand ();
-		h.updateHand ();
+		GameObject controller = GameObject.Find ("Controller");
+		p1 = new Player (1, controller);
 
 	}
 	
 	// Update is called once per frame
 	void Update () {
-	
+		if (Input.GetKeyDown (KeyCode.Space)) {
+			print("SPACE");
+			if (stage == 0) {
+				p1.Draw ();
+				stage = 1;
+			}
+		}
+		if (Input.GetKeyDown (KeyCode.A)) {
+			
+			if (stage == 1) {
+				p1.Discard (1);
+				stage = 0;
+			}
+		}
 	}
 }

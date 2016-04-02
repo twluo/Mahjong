@@ -2,15 +2,7 @@
 using System.Collections;
 
 public class Tile : MonoBehaviour {
-
-	public string suit;
-	public string value;
-
-	void initializeTile(string suit, string value) {
-		this.suit = suit;
-		this.value = value;
-		Start ();
-	}
+	
 	// Use this for initialization
 	void Start () {	
 		
@@ -18,6 +10,14 @@ public class Tile : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+
+
+	}
+	void OnMouseDown() {
+		transform.position += new Vector3(0,0.5f,0);
+	}
 	
+	void onMouseUp() {
+		transform.position += new Vector3(0,-0.5f,0);
 	}
 }

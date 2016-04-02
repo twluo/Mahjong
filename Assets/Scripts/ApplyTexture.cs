@@ -39,6 +39,7 @@ public class ApplyTexture : MonoBehaviour {
 		uv2 = new Vector2 (x + 0.111f, y);
 		uv3 = new Vector3 (x, y + 0.2f);
 		uv4 = new Vector3 (x + 0.111f, y + 0.2f);
+		ApplyTextureMap ();
 		
 	}
 	void ApplyTextureMap() {
